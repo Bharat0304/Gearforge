@@ -25,6 +25,7 @@ model Project{
   userId String 
   user User @relation(fields: [userId], references: [id])
   tasks Task[]
+  generations Generation[] 
 }
 model Task{
   id String @id @default(uuid()) 
@@ -34,4 +35,25 @@ model Task{
   updatedAt DateTime @updatedAt
   projectId String 
   project Project @relation(fields: [projectId], references: [id])
+}
+model Generation{
+  id String @id @default(uuid())
+  projectId String
+  project Project @relation(fields: [projectId], references: [id])
+  prompt String
+  generationid Jobs[]
+  status Status @default(PENDING) 
+ createdAt DateTime @default(now()) 
+}
+
+model Jobs{
+  id String @id @default(uuid())
+  generationId String 
+  generation Generation @relation(fields: [generationId] , references: [id])
+  error Boolean @default(false) 
+    status Status @default(PENDING)
+}
+enum Status{
+  PENDING 
+  COMPLETED
 }

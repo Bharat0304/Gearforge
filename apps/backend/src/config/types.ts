@@ -9,6 +9,8 @@ export const SigninSchema= z.object({
     password:z.string().min(8)
 })
 export const aiInputSchema= z.object({
-    prompt: z.string().max(1000),
+    message: z.string().max(1000),
+    model:z.string().optional()
+
 })
   

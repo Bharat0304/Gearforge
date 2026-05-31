@@ -36,29 +36,20 @@ model Task{
   projectId String 
   project Project @relation(fields: [projectId], references: [id])
 }
-model Generation{
-  id String @id @default(uuid())
-  projectId String
-  project Project @relation(fields: [projectId], references: [id])
-  prompt String
-  generationid Jobs[]
-  status Status @default(PENDING) 
- createdAt DateTime @default(now()) 
+model Generation {
+  id            String   @id @default(uuid())
+  projectId     String?
+  project       Project?  @relation(fields: [projectId], references: [id])
+  prompt        String
+  generatedCode String?
+  renderPath    String?
+  error         String?
+  status        Status   @default(PENDING)
+  createdAt     DateTime @default(now())
 }
 
-model Jobs{
-  id String @id @default(uuid())
-  generationId String 
-  generation Generation @relation(fields: [generationId] , references: [id])
-  error Boolean @default(false) 
-    status Status @default(PENDING)
-}
-enum Status{
-  PENDING 
+enum Status {
+  PENDING
   COMPLETED
-}
-model CodeSnippet{
-  id String @id @default(uuid())
-  code String  
-  createdAt DateTime @default(now())
+  FAILED
 }

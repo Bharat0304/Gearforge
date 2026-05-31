@@ -4,6 +4,7 @@ import { airouter } from "./modules/ai/aiservice.js";
 import cors from "cors";
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.get("/health ", (req, res) => {
   res.send("Server is running ");

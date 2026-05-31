@@ -10,7 +10,6 @@ export const SigninSchema= z.object({
 })
 export const aiInputSchema= z.object({
     message: z.string().max(1000),
-    model:z.string().optional()
-
+    model: z.string().optional(),
+    projectId: z.string().optional() // Allow optional for testing
 })
-  

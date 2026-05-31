@@ -32,7 +32,7 @@ import bpy
 
 13. Set the render output path:
 
-bpy.context.scene.render.filepath = "//render.png"
+bpy.context.scene.render.filepath = "render.png"
 
 14. Render a still image using:
 

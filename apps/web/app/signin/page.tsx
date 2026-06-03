@@ -1,80 +1,120 @@
 "use client";
-
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signin } from "../../lib/api";
 import Link from "next/link";
+import { useState } from "react";
 
-export default function SigninPage() {
-  const router = useRouter();
-  const [formData, setFormData] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await signin(formData);
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Invalid credentials");
-    } finally {
-      setLoading(false);
-    }
-  };
+export default function SignInPage() {
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900 dark:text-white">
-            Sign in to your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-            Or{" "}
-            <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400">
-              create a new account
-            </Link>
+    <div style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+      {/* LEFT — dark brand panel */}
+      <div style={{
+        background: "#000",
+        padding: 48,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        position: "relative",
+        overflow: "hidden",
+        borderRight: "1px solid rgba(255,255,255,0.06)",
+      }}>
+        {/* Grid dots */}
+        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)", backgroundSize: "24px 24px", pointerEvents: "none" }} />
+        {/* Red glow */}
+        <div style={{ position: "absolute", bottom: -200, left: -200, width: 600, height: 600, background: "radial-gradient(circle, rgba(255,68,34,0.1) 0%, transparent 60%)", borderRadius: "50%", pointerEvents: "none" }} />
+
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", position: "relative", zIndex: 1 }}>
+          <div style={{ width: 28, height: 28, background: "linear-gradient(135deg,#ff4422,#ffaa00)", clipPath: "polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)" }} />
+          <span style={{ fontSize: 15, fontWeight: 800, letterSpacing: ".1em", textTransform: "uppercase", color: "#fff" }}>Gearforge</span>
+        </Link>
+
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <blockquote style={{ fontFamily: "var(--fs)", fontStyle: "italic", fontSize: 22, lineHeight: 1.6, color: "rgba(255,255,255,0.55)", marginBottom: 20 }}>
+            "Gearforge cut our asset pipeline from weeks to hours. The quality is production-ready."
+          </blockquote>
+          <cite style={{ fontFamily: "var(--fm)", fontSize: 10, color: "rgba(255,255,255,0.25)", letterSpacing: ".12em", textTransform: "uppercase", fontStyle: "normal" }}>
+            — Alex Chen · 3D Artist, Riot Games
+          </cite>
+        </div>
+      </div>
+
+      {/* RIGHT — form */}
+      <div style={{ background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: 48 }}>
+        <div style={{ width: "100%", maxWidth: 380, animation: "fadeUp 0.35s ease both" }}>
+          <div style={{ fontFamily: "var(--fm)", fontSize: 10, letterSpacing: ".15em", textTransform: "uppercase", color: "var(--red)", marginBottom: 14 }}>Welcome back</div>
+          <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: "-.025em", marginBottom: 6 }}>Sign in to Gearforge</h1>
+          <p style={{ fontSize: 13, color: "var(--text3)", marginBottom: 32 }}>Enter your credentials to continue</p>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
+            {[
+              { label: "Google", icon: "G" },
+              { label: "GitHub", icon: "⌥" },
+            ].map((s) => (
+              <button key={s.label} style={{
+                padding: 10, background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)",
+                color: "var(--text2)", cursor: "pointer", fontFamily: "var(--fn)", fontSize: 12, fontWeight: 600,
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                transition: "all .15s",
+              }}
+                onMouseEnter={e => { e.currentTarget.style.background = "var(--surf2)"; e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "var(--surf)"; e.currentTarget.style.color = "var(--text2)"; }}
+              >
+                <span>{s.icon}</span> {s.label}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
+            <span style={{ fontFamily: "var(--fm)", fontSize: 10, color: "var(--text3)", letterSpacing: ".08em" }}>OR</span>
+            <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
+          </div>
+
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontFamily: "var(--fm)", fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 6 }}>Email</label>
+            <input
+              type="email"
+              placeholder="you@company.com"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              style={{ width: "100%", padding: "11px 14px", background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontFamily: "var(--fn)", fontSize: 14, outline: "none", transition: "border-color .15s" }}
+              onFocus={e => (e.target.style.borderColor = "rgba(255,255,255,0.3)")}
+              onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+            />
+          </div>
+
+          <div style={{ marginBottom: 24 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <label style={{ fontFamily: "var(--fm)", fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--text3)" }}>Password</label>
+              <a href="#" style={{ fontFamily: "var(--fm)", fontSize: 10, color: "var(--amber)", textDecoration: "none" }}>Forgot password?</a>
+            </div>
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={pass}
+              onChange={e => setPass(e.target.value)}
+              style={{ width: "100%", padding: "11px 14px", background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontFamily: "var(--fn)", fontSize: 14, outline: "none", transition: "border-color .15s" }}
+              onFocus={e => (e.target.style.borderColor = "rgba(255,255,255,0.3)")}
+              onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+            />
+          </div>
+
+          <Link href="/dashboard" style={{
+            display: "block", width: "100%", padding: 13,
+            background: "var(--red)", color: "#fff", textAlign: "center",
+            fontSize: 14, fontWeight: 700, letterSpacing: ".04em", textDecoration: "none",
+            transition: "background .18s",
+          }}
+            onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = "#ff6644")}
+            onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = "var(--red)")}
+          >Sign In →</Link>
+
+          <p style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: "var(--text3)" }}>
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" style={{ color: "#fff", fontWeight: 700, textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.3)" }}>Create one free</Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
-              <input
-                type="email"
-                required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-              <input
-                type="password"
-                required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-white dark:bg-gray-700 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
-            </div>
-          </div>
-
-          {error && <div className="text-red-500 text-sm text-center font-medium bg-red-50 dark:bg-red-900/30 p-3 rounded-md">{error}</div>}
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors disabled:opacity-50"
-            >
-              {loading ? "Signing in..." : "Sign in"}
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );

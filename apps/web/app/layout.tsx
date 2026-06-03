@@ -2,14 +2,18 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Gearforge — AI 3D Design Platform",
-  description: "From texts, images, or sketches to production-ready 3D assets in seconds.",
+  title: "Gearforge — AI 3D Asset Platform",
+  description: "The AI workspace for production-ready 3D asset generation. Built for creators who ship.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en" data-theme="dark">
-      <body>{children}</body>
+    <html lang="en">
+      <body className="noise">{children}</body>
     </html>
   );
 }

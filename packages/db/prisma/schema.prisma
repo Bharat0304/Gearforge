@@ -7,45 +7,51 @@ datasource db {
   provider = "postgresql"
 }
 
-model User{
-  id String @id @default(uuid()) 
-  email String @unique
-  name String? 
-  password String 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  projects Project[]
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String?
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  projects  Project[]
 }
-model Project{
-  id String @id @default(uuid()) 
-  name String 
-  description String? 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId String 
-  user User @relation(fields: [userId], references: [id])
-  tasks Task[]
-  generations Generation[] 
+
+model Project {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  userId      String
+  generations Generation[]
+  user        User         @relation(fields: [userId], references: [id])
+  tasks       Task[]
 }
-model Task{
-  id String @id @default(uuid()) 
-  name String 
-  description String? 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  projectId String 
-  project Project @relation(fields: [projectId], references: [id])
+
+model Task {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
 }
+
 model Generation {
   id            String   @id @default(uuid())
   projectId     String?
-  project       Project?  @relation(fields: [projectId], references: [id])
   prompt        String
-  generatedCode String?
-  renderPath    String?
-  error         String?
   status        Status   @default(PENDING)
   createdAt     DateTime @default(now())
+  error         String?
+  generatedCode String?
+  imageUrl      String?
+  videoUrl      String?
+  components    Json?
+  assemblySteps Json?
+  project       Project? @relation(fields: [projectId], references: [id])
 }
 
 enum Status {

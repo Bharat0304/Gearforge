@@ -34,16 +34,24 @@ async def render(product: Product):
     
     modified_code += f"\n\nimport bpy\n"
     modified_code += f"""
+import sys
 try:
+    if bpy.context.mode != 'OBJECT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+    
     if not any(obj.type == 'CAMERA' for obj in bpy.data.objects):
         bpy.ops.object.camera_add(location=(5, -5, 5))
         cam = bpy.context.active_object
         cam.rotation_euler = (1.0, 0.0, 0.785)
         bpy.context.scene.camera = cam
+    elif not bpy.context.scene.camera:
+        cam = next(obj for obj in bpy.data.objects if obj.type == 'CAMERA')
+        bpy.context.scene.camera = cam
+        
     if not any(obj.type == 'LIGHT' for obj in bpy.data.objects):
         bpy.ops.object.light_add(type='SUN', location=(5, 5, 5))
 except Exception as e:
-    print('Failed to add default camera/light:', e)
+    print('Failed to add default camera/light:', e, file=sys.stderr)
 """
     modified_code += f"\nimport sys\n"
     modified_code += f"try:\n    bpy.context.scene.render.filepath = '{render_path}'\n    bpy.ops.render.render(write_still=True)\nexcept Exception as e:\n    print('Render Failed:', e, file=sys.stderr)\n"

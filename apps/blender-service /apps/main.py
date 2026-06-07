@@ -45,9 +45,10 @@ try:
 except Exception as e:
     print('Failed to add default camera/light:', e)
 """
-    modified_code += f"try:\n    bpy.context.scene.render.filepath = '{render_path}'\n    bpy.ops.render.render(write_still=True)\nexcept Exception as e:\n    print('Render Failed:', e)\n"
-    modified_code += f"try:\n    bpy.ops.wm.save_as_mainfile(filepath='{scene_path}')\nexcept Exception as e:\n    print('Blend save failed:', e)\n"
-    modified_code += f"try:\n    bpy.ops.export_scene.gltf(filepath='{glb_path}', export_format='GLB')\nexcept Exception as e:\n    print('GLB Export Failed:', e)\n"
+    modified_code += f"\nimport sys\n"
+    modified_code += f"try:\n    bpy.context.scene.render.filepath = '{render_path}'\n    bpy.ops.render.render(write_still=True)\nexcept Exception as e:\n    print('Render Failed:', e, file=sys.stderr)\n"
+    modified_code += f"try:\n    bpy.ops.wm.save_as_mainfile(filepath='{scene_path}')\nexcept Exception as e:\n    print('Blend save failed:', e, file=sys.stderr)\n"
+    modified_code += f"try:\n    bpy.ops.export_scene.gltf(filepath='{glb_path}', export_format='GLB')\nexcept Exception as e:\n    print('GLB Export Failed:', e, file=sys.stderr)\n"
 
     # 2. Save the code as script.py.
     with open(script_path, 'w') as f:

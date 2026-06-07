@@ -58,6 +58,8 @@ The generated Blender code MUST:
 * Position the camera so the model is clearly visible.
 
 * Configure render settings.
+* CRITICAL: ALWAYS use the EEVEE render engine. NEVER use CYCLES.
+* CRITICAL: NEVER enable OpenImageDenoise or any GPU-specific features, as this code will run on a CPU-only server.
 
 * Set:
 

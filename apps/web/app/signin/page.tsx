@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 
 export default function SignInPage() {
@@ -10,6 +10,15 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const token = searchParams.get("token");
+    if (token) {
+      Cookies.set("auth_token", token, { expires: 1 });
+      window.location.href = "/dashboard";
+    }
+  }, [searchParams]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,6 +105,13 @@ export default function SignInPage() {
               }}
                 onMouseEnter={e => { e.currentTarget.style.background = "var(--surf2)"; e.currentTarget.style.color = "#fff"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = "var(--surf)"; e.currentTarget.style.color = "var(--text2)"; }}
+                onClick={() => {
+                  if (s.label === "GitHub") {
+                    window.location.href = "http://localhost:3000/api/v1/auth/github";
+                  } else if (s.label === "Google") {
+                    window.location.href = "http://localhost:3000/api/v1/auth/google";
+                  }
+                }}
               >
                 <span>{s.icon}</span> {s.label}
               </button>

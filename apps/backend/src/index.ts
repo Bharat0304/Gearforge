@@ -19,11 +19,13 @@ const __dirname = path.dirname(__filename);
 const generatedPath = path.resolve(__dirname, '../../blender-service /generated');
 app.use('/media', express.static(generatedPath));
 import { bRouter } from "./modules/biling/billing.js";
+import { oauthRouter } from "./routes/oauth.js";
 app.use("/api/v1", authrouter);
 app.use("/api/v1", airouter);
 app.use("/api/v1", searchRouter);
 app.use("/api/v1", vRouter);
 app.use("/api/v1/billing", bRouter);
+app.use("/api/v1/auth", oauthRouter);
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });

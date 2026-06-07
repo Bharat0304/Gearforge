@@ -126,6 +126,13 @@ export default function SignUpPage() {
               }}
                 onMouseEnter={e => { e.currentTarget.style.background = "var(--surf2)"; e.currentTarget.style.color = "#fff"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = "var(--surf)"; e.currentTarget.style.color = "var(--text2)"; }}
+                onClick={() => {
+                  if (s.label === "GitHub") {
+                    window.location.href = "http://localhost:3000/api/v1/auth/github";
+                  } else if (s.label === "Google") {
+                    window.location.href = "http://localhost:3000/api/v1/auth/google";
+                  }
+                }}
               ><span>{s.icon}</span> {s.label}</button>
             ))}
           </div>

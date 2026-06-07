@@ -1,147 +1,152 @@
 import bpy
+import bmesh
+from mathutils import Vector
+import math
 
 # Clear existing mesh objects
 bpy.ops.object.select_all(action='SELECT')
 bpy.ops.object.delete(use_global=False)
 
-# Create base frame rails (X-axis)
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0, 0.1))
-base_rail_1 = bpy.context.active_object
-base_rail_1.name = 'Base_Rail_X1'
-base_rail_1.scale = (2, 0.04, 0.04)
+# Create base
+bpy.ops.mesh.primitive_cylinder_add(radius=0.15, depth=0.1, location=(0, 0, 0.05))
+base = bpy.context.active_object
+base.name = 'Base'
 
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0.8, 0.1))
-base_rail_2 = bpy.context.active_object
-base_rail_2.name = 'Base_Rail_X2'
-base_rail_2.scale = (2, 0.04, 0.04)
+# Create base material
+base_mat = bpy.data.materials.new(name='BaseMaterial')
+base_mat.use_nodes = True
+bsdf = base_mat.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
+bsdf.inputs['Base Color'].default_value = (0.2, 0.2, 0.2, 1.0)
+bsdf.inputs['Metallic'].default_value = 0.8
+base.data.materials.append(base_mat)
 
-# Create Y-axis rails
-bpy.ops.mesh.primitive_cube_add(size=2, location=(-1.8, 0.4, 0.1))
-y_rail_1 = bpy.context.active_object
-y_rail_1.name = 'Y_Rail_1'
-y_rail_1.scale = (0.04, 0.5, 0.04)
+# Create shoulder joint
+bpy.ops.mesh.primitive_cylinder_add(radius=0.08, depth=0.12, location=(0, 0, 0.16))
+shoulder_joint = bpy.context.active_object
+shoulder_joint.name = 'ShoulderJoint'
+shoulder_joint.rotation_euler = (math.radians(90), 0, 0)
 
-bpy.ops.mesh.primitive_cube_add(size=2, location=(1.8, 0.4, 0.1))
-y_rail_2 = bpy.context.active_object
-y_rail_2.name = 'Y_Rail_2'
-y_rail_2.scale = (0.04, 0.5, 0.04)
+# Create upper arm
+bpy.ops.mesh.primitive_cylinder_add(radius=0.04, depth=0.3, location=(0, 0.15, 0.16))
+upper_arm = bpy.context.active_object
+upper_arm.name = 'UpperArm'
+upper_arm.rotation_euler = (math.radians(90), 0, 0)
 
-# Create gantry (movable X-carriage)
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0.4, 0.3))
-gantry = bpy.context.active_object
-gantry.name = 'Gantry'
-gantry.scale = (0.06, 0.5, 0.06)
+# Create elbow joint
+bpy.ops.mesh.primitive_cylinder_add(radius=0.06, depth=0.1, location=(0, 0.3, 0.16))
+elbow_joint = bpy.context.active_object
+elbow_joint.name = 'ElbowJoint'
+elbow_joint.rotation_euler = (0, math.radians(90), 0)
 
-# Create Z-axis rail
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0.4, 0.8))
-z_rail = bpy.context.active_object
-z_rail.name = 'Z_Rail'
-z_rail.scale = (0.04, 0.04, 0.4)
+# Create forearm
+bpy.ops.mesh.primitive_cylinder_add(radius=0.03, depth=0.25, location=(0.125, 0.3, 0.16))
+forearm = bpy.context.active_object
+forearm.name = 'Forearm'
+forearm.rotation_euler = (0, math.radians(90), 0)
 
-# Create spindle mount
-bpy.ops.mesh.primitive_cylinder_add(radius=0.08, depth=0.3, location=(0, 0.4, 0.5))
-spindle_mount = bpy.context.active_object
-spindle_mount.name = 'Spindle_Mount'
+# Create wrist joint 1
+bpy.ops.mesh.primitive_cylinder_add(radius=0.04, depth=0.08, location=(0.25, 0.3, 0.16))
+wrist_joint1 = bpy.context.active_object
+wrist_joint1.name = 'WristJoint1'
+wrist_joint1.rotation_euler = (0, math.radians(90), 0)
 
-# Create spindle motor
-bpy.ops.mesh.primitive_cylinder_add(radius=0.06, depth=0.25, location=(0, 0.4, 0.35))
-spindle_motor = bpy.context.active_object
-spindle_motor.name = 'Spindle_Motor'
+# Create wrist joint 2
+bpy.ops.mesh.primitive_cylinder_add(radius=0.03, depth=0.06, location=(0.29, 0.3, 0.16))
+wrist_joint2 = bpy.context.active_object
+wrist_joint2.name = 'WristJoint2'
+wrist_joint2.rotation_euler = (math.radians(90), 0, 0)
 
-# Create stepper motors
-bpy.ops.mesh.primitive_cube_add(size=2, location=(-2.2, 0.4, 0.1))
-x_motor = bpy.context.active_object
-x_motor.name = 'X_Motor'
-x_motor.scale = (0.15, 0.15, 0.1)
+# Create end effector base
+bpy.ops.mesh.primitive_cube_add(size=0.06, location=(0.32, 0.3, 0.16))
+end_effector = bpy.context.active_object
+end_effector.name = 'EndEffector'
 
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0, -0.8, 0.1))
-y_motor = bpy.context.active_object
-y_motor.name = 'Y_Motor'
-y_motor.scale = (0.15, 0.15, 0.1)
+# Create gripper finger 1
+bpy.ops.mesh.primitive_cube_add(size=0.02, location=(0.34, 0.32, 0.18))
+finger1 = bpy.context.active_object
+finger1.name = 'Finger1'
+finger1.scale = (1, 0.5, 2)
 
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0.3, 0.4, 0.9))
-z_motor = bpy.context.active_object
-z_motor.name = 'Z_Motor'
-z_motor.scale = (0.1, 0.1, 0.15)
+# Create gripper finger 2
+bpy.ops.mesh.primitive_cube_add(size=0.02, location=(0.34, 0.28, 0.18))
+finger2 = bpy.context.active_object
+finger2.name = 'Finger2'
+finger2.scale = (1, 0.5, 2)
 
-# Create lead screws
-bpy.ops.mesh.primitive_cylinder_add(radius=0.008, depth=1.6, location=(-2, 0.4, 0.1))
-x_leadscrew = bpy.context.active_object
-x_leadscrew.name = 'X_Leadscrew'
-x_leadscrew.rotation_euler = (0, 1.5708, 0)
+# Create servo motors at joints
+servo_locations = [(0, 0, 0.1), (0, 0, 0.22), (0, 0.3, 0.22), (0.25, 0.3, 0.22), (0.29, 0.3, 0.22), (0.32, 0.3, 0.22)]
+for i, loc in enumerate(servo_locations):
+    bpy.ops.mesh.primitive_cube_add(size=0.06, location=loc)
+    servo = bpy.context.active_object
+    servo.name = f'Servo{i+1}'
+    servo.scale = (1.5, 0.8, 0.6)
+    # Apply servo material
+    servo_mat = bpy.data.materials.new(name=f'ServoMaterial{i+1}')
+    servo_mat.use_nodes = True
+    servo_bsdf = servo_mat.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
+    servo_bsdf.inputs['Base Color'].default_value = (0.1, 0.1, 0.8, 1.0)
+    servo.data.materials.append(servo_mat)
 
-bpy.ops.mesh.primitive_cylinder_add(radius=0.008, depth=0.8, location=(0, -0.6, 0.1))
-y_leadscrew = bpy.context.active_object
-y_leadscrew.name = 'Y_Leadscrew'
-y_leadscrew.rotation_euler = (1.5708, 0, 0)
+# Create wiring
+bpy.ops.mesh.primitive_cylinder_add(radius=0.005, depth=0.5, location=(0.15, 0.15, 0.16))
+wiring = bpy.context.active_object
+wiring.name = 'Wiring'
+wiring.rotation_euler = (0, math.radians(45), 0)
+wiring_mat = bpy.data.materials.new(name='WiringMaterial')
+wiring_mat.use_nodes = True
+wiring_bsdf = wiring_mat.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
+wiring_bsdf.inputs['Base Color'].default_value = (1.0, 0.2, 0.2, 1.0)
+wiring.data.materials.append(wiring_mat)
 
-bpy.ops.mesh.primitive_cylinder_add(radius=0.008, depth=0.6, location=(0.2, 0.4, 0.6))
-z_leadscrew = bpy.context.active_object
-z_leadscrew.name = 'Z_Leadscrew'
+# Apply materials to arm segments
+arm_mat = bpy.data.materials.new(name='ArmMaterial')
+arm_mat.use_nodes = True
+arm_bsdf = arm_mat.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
+arm_bsdf.inputs['Base Color'].default_value = (0.6, 0.6, 0.6, 1.0)
+arm_bsdf.inputs['Metallic'].default_value = 0.5
 
-# Create linear bearings
-for i, pos in enumerate([(-1.5, 0, 0.1), (-1, 0, 0.1), (-0.5, 0, 0.1), (0, 0, 0.1)]):
-    bpy.ops.mesh.primitive_cylinder_add(radius=0.015, depth=0.06, location=pos)
-    bearing = bpy.context.active_object
-    bearing.name = f'Linear_Bearing_X{i+1}'
-    bearing.rotation_euler = (0, 1.5708, 0)
-
-for i, pos in enumerate([(0, 0.1, 0.1), (0, 0.3, 0.1), (0, 0.5, 0.1), (0, 0.7, 0.1)]):
-    bpy.ops.mesh.primitive_cylinder_add(radius=0.015, depth=0.06, location=pos)
-    bearing = bpy.context.active_object
-    bearing.name = f'Linear_Bearing_Y{i+1}'
-    bearing.rotation_euler = (1.5708, 0, 0)
-
-# Create work bed
-bpy.ops.mesh.primitive_cube_add(size=2, location=(0, 0.4, -0.05))
-work_bed = bpy.context.active_object
-work_bed.name = 'Work_Bed'
-work_bed.scale = (1.5, 0.4, 0.02)
-
-# Create electronics enclosure
-bpy.ops.mesh.primitive_cube_add(size=2, location=(-2.5, 0.4, 0.4))
-electronics_box = bpy.context.active_object
-electronics_box.name = 'Electronics_Enclosure'
-electronics_box.scale = (0.2, 0.3, 0.2)
-
-# Create materials
-steel_mat = bpy.data.materials.new(name='Steel')
-steel_mat.use_nodes = True
-bsdf = steel_mat.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
-bsdf.inputs[0].default_value = (0.3, 0.3, 0.4, 1.0)
-bsdf.inputs[7].default_value = 0.8
-steel_mat.node_tree.links.new(bsdf.outputs[0], steel_mat.node_tree.nodes['Material Output'].inputs[0])
-
-aluminum_mat = bpy.data.materials.new(name='Aluminum')
-aluminum_mat.use_nodes = True
-bsdf_al = aluminum_mat.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
-bsdf_al.inputs[0].default_value = (0.7, 0.7, 0.8, 1.0)
-bsdf_al.inputs[7].default_value = 0.9
-aluminum_mat.node_tree.links.new(bsdf_al.outputs[0], aluminum_mat.node_tree.nodes['Material Output'].inputs[0])
-
-# Assign materials
-for obj_name in ['Base_Rail_X1', 'Base_Rail_X2', 'Y_Rail_1', 'Y_Rail_2', 'Gantry', 'Z_Rail']:
+for obj_name in ['UpperArm', 'Forearm', 'ShoulderJoint', 'ElbowJoint', 'WristJoint1', 'WristJoint2', 'EndEffector']:
     if obj_name in bpy.data.objects:
-        bpy.data.objects[obj_name].data.materials.append(aluminum_mat)
+        bpy.data.objects[obj_name].data.materials.append(arm_mat)
 
-for obj_name in ['Spindle_Motor', 'X_Motor', 'Y_Motor', 'Z_Motor']:
+# Gripper material
+gripper_mat = bpy.data.materials.new(name='GripperMaterial')
+gripper_mat.use_nodes = True
+gripper_bsdf = gripper_mat.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
+gripper_bsdf.inputs['Base Color'].default_value = (0.8, 0.8, 0.1, 1.0)
+for obj_name in ['Finger1', 'Finger2']:
     if obj_name in bpy.data.objects:
-        bpy.data.objects[obj_name].data.materials.append(steel_mat)
+        bpy.data.objects[obj_name].data.materials.append(gripper_mat)
 
-# Add camera
-bpy.ops.object.camera_add(location=(5, -5, 3))
-camera = bpy.context.active_object
-camera.rotation_euler = (1.1, 0, 0.785)
+# Add camera if none exists
+if not any(obj.type == 'CAMERA' for obj in bpy.data.objects):
+    bpy.ops.object.camera_add(location=(1.0, -1.0, 0.8))
+    camera = bpy.context.active_object
+    camera.rotation_euler = (math.radians(60), 0, math.radians(45))
 
 # Add lighting
-bpy.ops.object.light_add(type='SUN', location=(3, 3, 5))
-light = bpy.context.active_object
-light.data.energy = 3
+if not any(obj.type == 'LIGHT' for obj in bpy.data.objects):
+    bpy.ops.object.light_add(type='SUN', location=(2, 2, 4))
+    light = bpy.context.active_object
+    light.data.energy = 3.0
+    
+    # Add fill light
+    bpy.ops.object.light_add(type='AREA', location=(-1, -1, 2))
+    fill_light = bpy.context.active_object
+    fill_light.data.energy = 1.5
 
 # Set render settings
 bpy.context.scene.render.engine = 'CYCLES'
-bpy.context.scene.render.filepath = '/Users/user/Projects/GearForge/apps/blender-service /generated/render_8d86121f-b71e-4a71-9031-aef93783934d.png'
-bpy.context.scene.camera = camera
+bpy.context.scene.render.filepath = '/Users/user/Projects/GearForge/apps/blender-service /generated/render_99ffd852-7dd9-4417-8738-83b33d56254f.png'
+bpy.context.scene.render.resolution_x = 1920
+bpy.context.scene.render.resolution_y = 1080
+bpy.context.scene.cycles.samples = 128
+
+# Set camera as active
+for obj in bpy.data.objects:
+    if obj.type == 'CAMERA':
+        bpy.context.scene.camera = obj
+        break
 
 import bpy
 
@@ -156,15 +161,15 @@ try:
 except Exception as e:
     print('Failed to add default camera/light:', e)
 try:
-    bpy.context.scene.render.filepath = '/Users/user/Projects/GearForge/apps/blender-service /generated/render_8d86121f-b71e-4a71-9031-aef93783934d.png'
+    bpy.context.scene.render.filepath = '/Users/user/Projects/GearForge/apps/blender-service /generated/render_99ffd852-7dd9-4417-8738-83b33d56254f.png'
     bpy.ops.render.render(write_still=True)
 except Exception as e:
     print('Render Failed:', e)
 try:
-    bpy.ops.wm.save_as_mainfile(filepath='/Users/user/Projects/GearForge/apps/blender-service /generated/scene_8d86121f-b71e-4a71-9031-aef93783934d.blend')
+    bpy.ops.wm.save_as_mainfile(filepath='/Users/user/Projects/GearForge/apps/blender-service /generated/scene_99ffd852-7dd9-4417-8738-83b33d56254f.blend')
 except Exception as e:
     print('Blend save failed:', e)
 try:
-    bpy.ops.export_scene.gltf(filepath='/Users/user/Projects/GearForge/apps/blender-service /generated/model_8d86121f-b71e-4a71-9031-aef93783934d.glb', export_format='GLB')
+    bpy.ops.export_scene.gltf(filepath='/Users/user/Projects/GearForge/apps/blender-service /generated/model_99ffd852-7dd9-4417-8738-83b33d56254f.glb', export_format='GLB')
 except Exception as e:
     print('GLB Export Failed:', e)

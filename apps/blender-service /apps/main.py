@@ -31,6 +31,18 @@ async def render(product: Product):
     glb_path = os.path.abspath(f"generated/model_{product.id}.glb")
     
     modified_code += f"\n\nimport bpy\n"
+    modified_code += f"""
+try:
+    if not any(obj.type == 'CAMERA' for obj in bpy.data.objects):
+        bpy.ops.object.camera_add(location=(5, -5, 5))
+        cam = bpy.context.active_object
+        cam.rotation_euler = (1.0, 0.0, 0.785)
+        bpy.context.scene.camera = cam
+    if not any(obj.type == 'LIGHT' for obj in bpy.data.objects):
+        bpy.ops.object.light_add(type='SUN', location=(5, 5, 5))
+except Exception as e:
+    print('Failed to add default camera/light:', e)
+"""
     modified_code += f"try:\n    bpy.context.scene.render.filepath = '{render_path}'\n    bpy.ops.render.render(write_still=True)\nexcept Exception as e:\n    print('Render Failed:', e)\n"
     modified_code += f"try:\n    bpy.ops.wm.save_as_mainfile(filepath='{scene_path}')\nexcept Exception as e:\n    print('Blend save failed:', e)\n"
     modified_code += f"try:\n    bpy.ops.export_scene.gltf(filepath='{glb_path}', export_format='GLB')\nexcept Exception as e:\n    print('GLB Export Failed:', e)\n"

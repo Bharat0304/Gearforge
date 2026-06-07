@@ -34,7 +34,7 @@ export default function SignInPage() {
       } else if (data.token) {
         // Save the JWT token securely
         Cookies.set("auth_token", data.token, { expires: 1 }); // expires in 1 day
-        router.push("/dashboard");
+        window.location.href = "/dashboard";
       }
     } catch (err) {
       setError("Failed to connect to the server. Please try again.");
@@ -157,7 +157,7 @@ export default function SignInPage() {
             Don&apos;t have an account?{" "}
             <Link href="/signup" style={{ color: "#fff", fontWeight: 700, textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.3)" }}>Create one free</Link>
           </p>
-        </div>
+        </form>
       </div>
     </div>
   );

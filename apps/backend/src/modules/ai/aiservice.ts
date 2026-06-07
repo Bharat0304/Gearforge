@@ -21,7 +21,7 @@ airouter.post('/ask', usermiddleware, async(req ,res)=>{
             where: { userId }
         });
 
-        if (generationCount >= 1) {
+        if (generationCount >= 3) {
             const successfulBilling = await prisma.billing.findFirst({
                 where: {
                     userId: userId,

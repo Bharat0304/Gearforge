@@ -1,0 +1,9 @@
+{
+  "name": "blender-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": ". .venv/bin/activate && uvicorn apps.main:app --reload --reload-exclude \"generated/*\" --port 8000",
+    "start": ". .venv/bin/activate && uvicorn apps.main:app --host 0.0.0.0 --port 8000"
+  }
+}

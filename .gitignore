@@ -37,3 +37,16 @@ yarn-error.log*
 .DS_Store
 *.pem
 .pnpm-store
+
+# Python Virtual Environment
+.venv/
+__pycache__/
+
+# Database / Prisma Generated Client
+packages/db/generated/
+
+# Uploads and User Generated Media
+apps/backend/verify/
+apps/backend/uploads/
+blender-service/generated/
+generated/

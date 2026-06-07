@@ -1,12 +1,22 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const STEPS = ["Account", "Profile", "Plan"];
 
 export default function SignUpPage() {
   const [step, setStep] = useState(0);
   const [strength, setStrength] = useState(0);
+
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   function calcStrength(v: string) {
     let s = 0;
@@ -15,7 +25,40 @@ export default function SignUpPage() {
     if (/[0-9]/.test(v)) s++;
     if (/[^a-zA-Z0-9]/.test(v)) s++;
     setStrength(s);
+    setPassword(v);
   }
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!email || !password || !firstName) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const name = `${firstName} ${lastName}`.trim();
+      const res = await fetch("http://localhost:3000/api/v1/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Failed to create account");
+      } else {
+        // Automatically redirect to sign in or sign them in
+        router.push("/signin");
+      }
+    } catch (err) {
+      setError("Failed to connect to the server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const strengthColors = ["#ef4444", "#f97316", "#ffaa00", "#22c55e"];
   const strengthLabels = ["Weak", "Fair", "Good", "Strong"];
@@ -52,7 +95,7 @@ export default function SignUpPage() {
 
       {/* RIGHT */}
       <div style={{ background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: 48 }}>
-        <div style={{ width: "100%", maxWidth: 420, animation: "fadeUp 0.35s ease both" }}>
+        <form onSubmit={handleSignUp} style={{ width: "100%", maxWidth: 420, animation: "fadeUp 0.35s ease both" }}>
           {/* Step bar */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 28 }}>
             {STEPS.map((s, i) => (
@@ -76,7 +119,7 @@ export default function SignUpPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 20 }}>
             {[{ label: "Google", icon: "G" }, { label: "GitHub", icon: "⌥" }].map((s) => (
-              <button key={s.label} style={{
+              <button key={s.label} type="button" style={{
                 padding: 10, background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)",
                 color: "var(--text2)", cursor: "pointer", fontFamily: "var(--fn)", fontSize: 12, fontWeight: 600,
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8, transition: "all .15s",
@@ -93,21 +136,32 @@ export default function SignUpPage() {
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
           </div>
 
+          {error && (
+            <div style={{ marginBottom: 16, padding: "10px", background: "rgba(255, 68, 34, 0.1)", border: "1px solid var(--red)", borderRadius: 4, color: "var(--red)", fontSize: 13 }}>
+              {error}
+            </div>
+          )}
+
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-            {[{ label: "First Name", ph: "Alex" }, { label: "Last Name", ph: "Chen" }].map((f) => (
-              <div key={f.label}>
-                <label style={{ display: "block", fontFamily: "var(--fm)", fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 6 }}>{f.label}</label>
-                <input type="text" placeholder={f.ph} style={{ width: "100%", padding: "11px 14px", background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontFamily: "var(--fn)", fontSize: 14, outline: "none" }}
-                  onFocus={e => (e.target.style.borderColor = "rgba(255,255,255,0.3)")}
-                  onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
-                />
-              </div>
-            ))}
+            <div>
+              <label style={{ display: "block", fontFamily: "var(--fm)", fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 6 }}>First Name</label>
+              <input type="text" placeholder="Alex" value={firstName} onChange={e => setFirstName(e.target.value)} style={{ width: "100%", padding: "11px 14px", background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontFamily: "var(--fn)", fontSize: 14, outline: "none" }}
+                onFocus={e => (e.target.style.borderColor = "rgba(255,255,255,0.3)")}
+                onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+              />
+            </div>
+            <div>
+              <label style={{ display: "block", fontFamily: "var(--fm)", fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 6 }}>Last Name</label>
+              <input type="text" placeholder="Chen" value={lastName} onChange={e => setLastName(e.target.value)} style={{ width: "100%", padding: "11px 14px", background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontFamily: "var(--fn)", fontSize: 14, outline: "none" }}
+                onFocus={e => (e.target.style.borderColor = "rgba(255,255,255,0.3)")}
+                onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
+              />
+            </div>
           </div>
 
           <div style={{ marginBottom: 16 }}>
             <label style={{ display: "block", fontFamily: "var(--fm)", fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 6 }}>Email</label>
-            <input type="email" placeholder="you@company.com" style={{ width: "100%", padding: "11px 14px", background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontFamily: "var(--fn)", fontSize: 14, outline: "none" }}
+            <input type="email" placeholder="you@company.com" value={email} onChange={e => setEmail(e.target.value)} style={{ width: "100%", padding: "11px 14px", background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontFamily: "var(--fn)", fontSize: 14, outline: "none" }}
               onFocus={e => (e.target.style.borderColor = "rgba(255,255,255,0.3)")}
               onBlur={e => (e.target.style.borderColor = "rgba(255,255,255,0.1)")}
             />
@@ -116,6 +170,7 @@ export default function SignUpPage() {
           <div style={{ marginBottom: 24 }}>
             <label style={{ display: "block", fontFamily: "var(--fm)", fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 6 }}>Password</label>
             <input type="password" placeholder="Min. 8 characters"
+              value={password}
               onChange={e => calcStrength(e.target.value)}
               style={{ width: "100%", padding: "11px 14px", background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontFamily: "var(--fn)", fontSize: 14, outline: "none" }}
               onFocus={e => (e.target.style.borderColor = "rgba(255,255,255,0.3)")}
@@ -129,13 +184,14 @@ export default function SignUpPage() {
             {strength > 0 && <div style={{ fontSize: 10, fontFamily: "var(--fm)", color: strengthColors[strength - 1], marginTop: 4 }}>{strengthLabels[strength - 1]}</div>}
           </div>
 
-          <Link href="/dashboard" style={{
+          <button type="submit" disabled={loading} style={{
             display: "block", width: "100%", padding: 13, background: "var(--red)", color: "#fff",
             textAlign: "center", fontSize: 14, fontWeight: 700, letterSpacing: ".04em", textDecoration: "none", transition: "background .18s",
+            border: "none", cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1
           }}
-            onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = "#ff6644")}
-            onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = "var(--red)")}
-          >Create Account — It&apos;s Free →</Link>
+            onMouseEnter={e => { if(!loading) e.currentTarget.style.background = "#ff6644"; }}
+            onMouseLeave={e => { if(!loading) e.currentTarget.style.background = "var(--red)"; }}
+          >{loading ? "Creating Account..." : "Create Account — It's Free →"}</button>
 
           <p style={{ fontSize: 10, color: "var(--text3)", textAlign: "center", marginTop: 12, lineHeight: 1.6 }}>
             By creating an account you agree to our{" "}
@@ -146,7 +202,7 @@ export default function SignUpPage() {
             Already have an account?{" "}
             <Link href="/signin" style={{ color: "#fff", fontWeight: 700, textDecoration: "none", borderBottom: "1px solid rgba(255,255,255,0.3)" }}>Sign in</Link>
           </p>
-        </div>
+        </form>
       </div>
     </div>
   );

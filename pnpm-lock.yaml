@@ -79,6 +79,8 @@ importers:
         specifier: ^2.1.0
         version: 2.1.0
 
+  'apps/blender-service ': {}
+
   apps/web:
     dependencies:
       '@repo/ui':

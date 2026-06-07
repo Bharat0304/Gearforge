@@ -43,6 +43,41 @@ airouter.post('/ask', usermiddleware, async(req ,res)=>{
         return res.status(400).json({error:result.error.issues});
     }
     const {message, model, projectId}= result.data;
+
+    try {
+        // Check cache for identical prompt
+        const cachedGeneration = await prisma.generation.findFirst({
+            where: { prompt: message, status: "COMPLETED" },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        if (cachedGeneration && cachedGeneration.generatedCode) {
+            console.log("Using cached AI response for prompt:", message);
+            
+            const data = await prisma.generation.create({
+                data: {
+                    prompt: message,
+                    generatedCode: cachedGeneration.generatedCode,
+                    components: cachedGeneration.components ? cachedGeneration.components : [],
+                    assemblySteps: cachedGeneration.assemblySteps ? cachedGeneration.assemblySteps : [],
+                    userId: userId,
+                    ...(projectId ? { projectId } : {})
+                }
+            });
+
+            return res.status(200).json({ 
+                response: {
+                    blenderCode: cachedGeneration.generatedCode,
+                    components: cachedGeneration.components,
+                    assemblySteps: cachedGeneration.assemblySteps
+                }, 
+                id: data.id 
+            });
+        }
+    } catch(e) {
+        console.warn("Cache check failed, proceeding with API call:", e);
+    }
+
     try{
         const client = new OpenRouter({
           apiKey: process.env.OPENROUTER_API_KEY

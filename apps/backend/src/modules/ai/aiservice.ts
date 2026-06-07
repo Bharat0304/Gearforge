@@ -150,8 +150,14 @@ airouter.post('/send', async(req, res)=>{
 
     if (generation.status === "COMPLETED" && generation.imageUrl) {
       console.log("Skipping render, using cached images for generation:", generation.id);
+      
+      // Derive the glb and blend paths from the cached imageUrl
+      // e.g., imageUrl = ".../generated/render_OLD_ID.png"
+      const glbPath = generation.imageUrl.replace(/render_([^/.]+)\.png$/, 'model_$1.glb');
+      const blendPath = generation.imageUrl.replace(/render_([^/.]+)\.png$/, 'scene_$1.blend');
+
       return res.status(200).json({ 
-        result: { success: true, renderPath: generation.imageUrl, glbPath: null, blendPath: null },
+        result: { success: true, renderPath: generation.imageUrl, glbPath: glbPath, blendPath: blendPath },
         videoResult: { success: true, videoPath: generation.videoUrl }
       });
     }

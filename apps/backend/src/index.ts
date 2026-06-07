@@ -3,25 +3,27 @@ import authrouter from "./routes/auth.js";
 import { airouter } from "./modules/ai/aiservice.js";
 import { searchRouter } from "./modules/search/index.js";
 import cors from "cors";
+import multer from 'multer';
+import {vRouter} from './modules/verify/index.js';
 const app = express();
 app.use(express.json());
 app.use(cors());
-
 import path from 'path';
-
+app.use('/api/v1/upload' , express.static("uploads"));
 app.get("/health ", (req, res) => {
   res.send("Server is running ");
 });
-
-// Serve generated files
 import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const generatedPath = path.resolve(__dirname, '../../blender-service /generated');
 app.use('/media', express.static(generatedPath));
+import { bRouter } from "./modules/biling/billing.js";
 app.use("/api/v1", authrouter);
 app.use("/api/v1", airouter);
 app.use("/api/v1", searchRouter);
+app.use("/api/v1", vRouter);
+app.use("/api/v1/billing", bRouter);
 app.listen(3000, () => {
   console.log("Server is running on port 3000");
 });

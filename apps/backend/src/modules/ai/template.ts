@@ -63,10 +63,6 @@ The generated Blender code MUST:
 
   bpy.context.scene.render.filepath = "render.png"
 
-* Render a still image using:
-
-  bpy.ops.render.render(write_still=True)
-
 * Execute without modification inside Blender.
 
 * Never contain pseudo-code.
@@ -79,6 +75,21 @@ The generated Blender code MUST:
 * Make reasonable assumptions if the user's request is ambiguous.
 
 * Use real-world scale whenever dimensions are provided.
+
+BLENDER 4.0+ COMPATIBILITY REQUIREMENTS
+
+* You MUST use Blender 4.0+ compatible API calls.
+* CRITICAL: Do NOT use deprecated mesh operators like bpy.ops.mesh.cylinder_add.
+* You MUST use "primitive" operators for all basic shapes:
+  - Use bpy.ops.mesh.primitive_cylinder_add(...) instead of cylinder_add
+  - Use bpy.ops.mesh.primitive_cube_add(...) instead of cube_add
+  - Use bpy.ops.mesh.primitive_uv_sphere_add(...) instead of uv_sphere_add
+  - Use bpy.ops.mesh.primitive_plane_add(...) instead of plane_add
+  - Use bpy.ops.mesh.primitive_cone_add(...) instead of cone_add
+* CRITICAL: When creating material nodes, the Principled BSDF node type is 'ShaderNodeBsdfPrincipled', NOT 'ShaderNodeBsdf'.
+  - Do NOT use: base_mat.node_tree.nodes.new(type='ShaderNodeBsdf')
+  - DO use: base_mat.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
+* DO NOT use deprecated properties. Note that 'Material.use_nodes' is deprecated but you can continue using it for now unless you know the Blender 4.0+ equivalent.
 
 SPECIAL DRONE REQUIREMENTS
 

@@ -15,6 +15,8 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   projects  Project[]
+  generations Generation[]
+  billings  Billing[]
 }
 
 model Project {
@@ -51,6 +53,8 @@ model Generation {
   videoUrl      String?
   components    Json?
   assemblySteps Json?
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id])
   project       Project? @relation(fields: [projectId], references: [id])
 }
 
@@ -58,4 +62,16 @@ enum Status {
   PENDING
   COMPLETED
   FAILED
+}
+model Billing {
+  id        String  @id @default(uuid())
+  amount    Int
+  provider  String?   
+  orderId   String?
+  status    String?
+  currency  String  @default("INR")
+  userId    String
+  receipt   String?
+  
+  user      User    @relation(fields: [userId], references: [id])
 }

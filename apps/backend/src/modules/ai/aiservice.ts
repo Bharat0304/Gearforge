@@ -2,6 +2,7 @@ import {OpenRouter} from '@openrouter/sdk';
 import {Router } from 'express'
 import { aiInputSchema } from '../../config/types.js';
 import { SystemPrompt } from './template.js';
+import { usermiddleware } from '../../common/middleware/auth.js';
 export const airouter:Router = Router()
 import dotenv from 'dotenv';
 import { prisma } from '@repo/db';
@@ -9,7 +10,34 @@ import { fetchData, generateVideo } from '../services/data.js';
 dotenv.config()
 const Model = "anthropic/claude-sonnet-4"
 
-airouter.post('/ask', async(req ,res)=>{
+airouter.post('/ask', usermiddleware, async(req ,res)=>{
+    const userId = (req as any).userId;
+    if (!userId) {
+        return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    try {
+        const generationCount = await prisma.generation.count({
+            where: { userId }
+        });
+
+        if (generationCount >= 1) {
+            const successfulBilling = await prisma.billing.findFirst({
+                where: {
+                    userId: userId,
+                    status: "success" // Or "paid", depending on webhook implementation
+                }
+            });
+
+            if (!successfulBilling) {
+                return res.status(402).json({ error: "Subscription required. You have exhausted your free prompt." });
+            }
+        }
+    } catch (e) {
+        console.error("Error checking subscription:", e);
+        return res.status(500).json({ error: "Internal server error" });
+    }
+
     const result = aiInputSchema.safeParse(req.body);
     if(!result.success){
         return res.status(400).json({error:result.error.issues});
@@ -34,9 +62,13 @@ airouter.post('/ask', async(req ,res)=>{
         
         let parsedData: any = { blenderCode: content, components: [], assemblySteps: [] };
         try {
-          // Remove potential markdown fences
-          const cleanJson = content.replace(/^```json\s*/, '').replace(/\s*```$/, '').trim();
-          parsedData = JSON.parse(cleanJson);
+          // Extract JSON block using regex to ignore any surrounding conversational text
+          const match = content.match(/\{[\s\S]*\}/);
+          if (match) {
+            parsedData = JSON.parse(match[0]);
+          } else {
+            parsedData = JSON.parse(content);
+          }
         } catch (e) {
           console.warn("Failed to parse JSON, falling back to raw content");
         }
@@ -49,6 +81,7 @@ airouter.post('/ask', async(req ,res)=>{
               generatedCode: parsedData.blenderCode || content,
               components: parsedData.components ? parsedData.components : [],
               assemblySteps: parsedData.assemblySteps ? parsedData.assemblySteps : [],
+              userId: userId,
               ...(projectId ? { projectId } : {})
             }
           });

@@ -1,10 +1,47 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (!email || !pass) {
+      setError("Please enter your email and password.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("http://localhost:3000/api/v1/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: pass }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Invalid credentials");
+      } else if (data.token) {
+        // Save the JWT token securely
+        Cookies.set("auth_token", data.token, { expires: 1 }); // expires in 1 day
+        router.push("/dashboard");
+      }
+    } catch (err) {
+      setError("Failed to connect to the server. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div style={{ minHeight: "100vh", display: "grid", gridTemplateColumns: "1fr 1fr" }}>
@@ -41,7 +78,7 @@ export default function SignInPage() {
 
       {/* RIGHT — form */}
       <div style={{ background: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: 48 }}>
-        <div style={{ width: "100%", maxWidth: 380, animation: "fadeUp 0.35s ease both" }}>
+        <form onSubmit={handleSignIn} style={{ width: "100%", maxWidth: 380, animation: "fadeUp 0.35s ease both" }}>
           <div style={{ fontFamily: "var(--fm)", fontSize: 10, letterSpacing: ".15em", textTransform: "uppercase", color: "var(--red)", marginBottom: 14 }}>Welcome back</div>
           <h1 style={{ fontSize: 32, fontWeight: 800, letterSpacing: "-.025em", marginBottom: 6 }}>Sign in to Gearforge</h1>
           <p style={{ fontSize: 13, color: "var(--text3)", marginBottom: 32 }}>Enter your credentials to continue</p>
@@ -51,7 +88,7 @@ export default function SignInPage() {
               { label: "Google", icon: "G" },
               { label: "GitHub", icon: "⌥" },
             ].map((s) => (
-              <button key={s.label} style={{
+              <button key={s.label} type="button" style={{
                 padding: 10, background: "var(--surf)", border: "1px solid rgba(255,255,255,0.1)",
                 color: "var(--text2)", cursor: "pointer", fontFamily: "var(--fn)", fontSize: 12, fontWeight: 600,
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
@@ -70,6 +107,12 @@ export default function SignInPage() {
             <span style={{ fontFamily: "var(--fm)", fontSize: 10, color: "var(--text3)", letterSpacing: ".08em" }}>OR</span>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.06)" }} />
           </div>
+
+          {error && (
+            <div style={{ marginBottom: 16, padding: "10px", background: "rgba(255, 68, 34, 0.1)", border: "1px solid var(--red)", borderRadius: 4, color: "var(--red)", fontSize: 13 }}>
+              {error}
+            </div>
+          )}
 
           <div style={{ marginBottom: 16 }}>
             <label style={{ display: "block", fontFamily: "var(--fm)", fontSize: 10, letterSpacing: ".1em", textTransform: "uppercase", color: "var(--text3)", marginBottom: 6 }}>Email</label>
@@ -100,15 +143,15 @@ export default function SignInPage() {
             />
           </div>
 
-          <Link href="/dashboard" style={{
-            display: "block", width: "100%", padding: 13,
+          <button type="submit" disabled={loading} style={{
+            display: "block", width: "100%", padding: 13, border: "none", cursor: loading ? "not-allowed" : "pointer",
             background: "var(--red)", color: "#fff", textAlign: "center",
             fontSize: 14, fontWeight: 700, letterSpacing: ".04em", textDecoration: "none",
-            transition: "background .18s",
+            transition: "background .18s", opacity: loading ? 0.7 : 1
           }}
-            onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = "#ff6644")}
-            onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = "var(--red)")}
-          >Sign In →</Link>
+            onMouseEnter={e => { if (!loading) e.currentTarget.style.background = "#ff6644"; }}
+            onMouseLeave={e => { if (!loading) e.currentTarget.style.background = "var(--red)"; }}
+          >{loading ? "Signing in..." : "Sign In →"}</button>
 
           <p style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: "var(--text3)" }}>
             Don&apos;t have an account?{" "}

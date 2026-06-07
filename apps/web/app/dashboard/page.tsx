@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Script from "next/script";
+import Cookies from "js-cookie";
+import VerifyPanel from "../../components/VerifyPanel";
 
 declare global {
   namespace JSX {
@@ -99,10 +101,13 @@ export default function DashboardPage() {
     setRenderError("");
     
     try {
-      // 1. Generate code using LLM
+      const token = Cookies.get("auth_token");
       const askRes = await fetch("http://localhost:3000/api/v1/ask", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({ message: prompt })
       });
       const askData = await askRes.json();
@@ -118,7 +123,10 @@ export default function DashboardPage() {
       setTlStep(3);
       const sendRes = await fetch("http://localhost:3000/api/v1/send", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({ id: askData.id })
       });
       const sendData = await sendRes.json();
@@ -452,6 +460,11 @@ export default function DashboardPage() {
                 >⛶ Fullscreen</button>
               </div>
             )}
+            {wsState === "result" && (
+              <div style={{ marginTop: 10 }}>
+                <VerifyPanel currentPrompt={prompt} currentStage="Render Complete" />
+              </div>
+            )}
           </div>
         </div>
 
@@ -500,9 +513,13 @@ export default function DashboardPage() {
                       onClick={async () => {
                         setLoadingLinks(prev => ({ ...prev, [comp.name]: true }));
                         try {
+                          const token = Cookies.get("auth_token");
                           const res = await fetch("http://localhost:3000/api/v1/items-search", {
                             method: "POST",
-                            headers: { "Content-Type": "application/json" },
+                            headers: { 
+                              "Content-Type": "application/json",
+                              Authorization: `Bearer ${token}`
+                            },
                             body: JSON.stringify({ prompt: "buy " + comp.name })
                           });
                           const data = await res.json();

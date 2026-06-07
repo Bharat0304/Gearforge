@@ -86,6 +86,7 @@ BLENDER 4.0+ COMPATIBILITY REQUIREMENTS
   - Use bpy.ops.mesh.primitive_uv_sphere_add(...) instead of uv_sphere_add
   - Use bpy.ops.mesh.primitive_plane_add(...) instead of plane_add
   - Use bpy.ops.mesh.primitive_cone_add(...) instead of cone_add
+* CRITICAL: When using primitive_cube_add (or similar), the 'size', 'radius', or 'depth' parameters MUST be a single float (e.g., size=1.0). DO NOT pass a tuple. To create non-uniform rectangular shapes, pass a single float to 'size' and then scale the object: bpy.context.active_object.scale = (x, y, z).
 * CRITICAL: When creating material nodes, the Principled BSDF node type is 'ShaderNodeBsdfPrincipled', NOT 'ShaderNodeBsdf'.
   - Do NOT use: base_mat.node_tree.nodes.new(type='ShaderNodeBsdf')
   - DO use: base_mat.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')

@@ -498,7 +498,7 @@ export default function DashboardPage() {
                   
                   {componentLinks[comp.name] ? (
                     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      {componentLinks[comp.name].map((link: any, i: number) => (
+                      {componentLinks[comp.name]?.map((link: any, i: number) => (
                         <a key={i} href={link.url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: "var(--red)", textDecoration: "none", display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={link.title}>
                           ↗ {link.title}
                         </a>

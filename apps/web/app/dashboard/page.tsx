@@ -7,9 +7,9 @@ import VerifyPanel from "../../components/VerifyPanel";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-
-
 type WSState = "empty" | "generating" | "result" | "error";
+
+const ModelViewer = 'model-viewer' as any;
 
 const PROJECTS = [
   { icon: "🚁", name: "Surveillance Drone v3", status: "completed", time: "2m ago" },
@@ -402,7 +402,7 @@ export default function DashboardPage() {
                   ) : activePreview === "png" && mediaPaths.png ? (
                     <img src={mediaPaths.png} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="Rendered Preview" />
                   ) : activePreview === "glb" && mediaPaths.glb ? (
-                    <model-viewer src={mediaPaths.glb} auto-rotate camera-controls style={{ width: "100%", height: "100%", backgroundColor: "var(--bg)" }}></model-viewer>
+                    <ModelViewer src={mediaPaths.glb} auto-rotate="true" camera-controls="true" style={{ width: "100%", height: "100%", backgroundColor: "var(--bg)" }}></ModelViewer>
                   ) : (
                     <div style={{ fontSize: 64, animation: "float3d 3.5s ease infinite" }}>🚁</div>
                   )}

@@ -3,6 +3,8 @@ from pydantic import BaseModel
 import subprocess
 import os
 
+BLENDER_BIN = os.environ.get("BLENDER_EXECUTABLE_PATH", "/Applications/Blender.app/Contents/MacOS/Blender" if os.path.exists("/Applications/Blender.app/Contents/MacOS/Blender") else "blender")
+
 app = FastAPI()
 
 class Product(BaseModel):
@@ -54,7 +56,7 @@ except Exception as e:
     # 3. Execute Blender using subprocess.
     result = subprocess.run(
         [
-            "/Applications/Blender.app/Contents/MacOS/Blender",
+            BLENDER_BIN,
             "-b",
             "-P",
             script_path
@@ -102,7 +104,7 @@ def generate_video(product: Product):
 
     result = subprocess.run(
         [
-            "/Applications/Blender.app/Contents/MacOS/Blender",
+            BLENDER_BIN,
             "-b",
             scene_path,
             "-P",

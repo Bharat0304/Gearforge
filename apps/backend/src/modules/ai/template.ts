@@ -92,6 +92,9 @@ BLENDER 4.0+ COMPATIBILITY REQUIREMENTS
 * CRITICAL: When creating material nodes, the Principled BSDF node type is 'ShaderNodeBsdfPrincipled', NOT 'ShaderNodeBsdf'.
   - Do NOT use: base_mat.node_tree.nodes.new(type='ShaderNodeBsdf')
   - DO use: base_mat.node_tree.nodes.new(type='ShaderNodeBsdfPrincipled')
+* CRITICAL: In Blender 4.0+, the Principled BSDF input 'Emission' was renamed.
+  - Do NOT use: bsdf.inputs['Emission'].default_value = ...
+  - DO use: bsdf.inputs['Emission Color'].default_value = ...
 * DO NOT use deprecated properties. Note that 'Material.use_nodes' is deprecated but you can continue using it for now unless you know the Blender 4.0+ equivalent.
 
 SPECIAL DRONE REQUIREMENTS

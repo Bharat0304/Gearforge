@@ -7,13 +7,7 @@ import VerifyPanel from "../../components/VerifyPanel";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'model-viewer': any;
-    }
-  }
-}
+
 
 type WSState = "empty" | "generating" | "result" | "error";
 

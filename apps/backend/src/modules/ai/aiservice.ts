@@ -60,6 +60,9 @@ airouter.post('/ask', usermiddleware, async(req ,res)=>{
                     generatedCode: cachedGeneration.generatedCode,
                     components: cachedGeneration.components ? cachedGeneration.components : [],
                     assemblySteps: cachedGeneration.assemblySteps ? cachedGeneration.assemblySteps : [],
+                    imageUrl: cachedGeneration.imageUrl,
+                    videoUrl: cachedGeneration.videoUrl,
+                    status: "COMPLETED",
                     userId: userId,
                     ...(projectId ? { projectId } : {})
                 }
@@ -143,6 +146,14 @@ airouter.post('/send', async(req, res)=>{
     
     if (!generation || !generation.generatedCode) {
       return res.status(404).json({error: "Generation not found or no code generated"});
+    }
+
+    if (generation.status === "COMPLETED" && generation.imageUrl) {
+      console.log("Skipping render, using cached images for generation:", generation.id);
+      return res.status(200).json({ 
+        result: { success: true, renderPath: generation.imageUrl, glbPath: null, blendPath: null },
+        videoResult: { success: true, videoPath: generation.videoUrl }
+      });
     }
 
     const result = await fetchData({

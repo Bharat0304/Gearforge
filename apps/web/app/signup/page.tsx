@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
 const STEPS = ["Account", "Profile", "Plan"];
 
 export default function SignUpPage() {
@@ -39,7 +41,7 @@ export default function SignUpPage() {
     setLoading(true);
     try {
       const name = `${firstName} ${lastName}`.trim();
-      const res = await fetch("http://localhost:3000/api/v1/signup", {
+      const res = await fetch(`${API_URL}/api/v1/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, name }),
@@ -128,9 +130,9 @@ export default function SignUpPage() {
                 onMouseLeave={e => { e.currentTarget.style.background = "var(--surf)"; e.currentTarget.style.color = "var(--text2)"; }}
                 onClick={() => {
                   if (s.label === "GitHub") {
-                    window.location.href = "http://localhost:3000/api/v1/auth/github";
+                    window.location.href = `${API_URL}/api/v1/auth/github`;
                   } else if (s.label === "Google") {
-                    window.location.href = "http://localhost:3000/api/v1/auth/google";
+                    window.location.href = `${API_URL}/api/v1/auth/google`;
                   }
                 }}
               ><span>{s.icon}</span> {s.label}</button>

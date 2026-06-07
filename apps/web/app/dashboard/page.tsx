@@ -5,6 +5,8 @@ import Script from "next/script";
 import Cookies from "js-cookie";
 import VerifyPanel from "../../components/VerifyPanel";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -102,7 +104,7 @@ export default function DashboardPage() {
     
     try {
       const token = Cookies.get("auth_token");
-      const askRes = await fetch("http://localhost:3000/api/v1/ask", {
+      const askRes = await fetch(`${API_URL}/api/v1/ask`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -121,7 +123,7 @@ export default function DashboardPage() {
 
       // 2. Send to blender service to render
       setTlStep(3);
-      const sendRes = await fetch("http://localhost:3000/api/v1/send", {
+      const sendRes = await fetch(`${API_URL}/api/v1/send`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -144,10 +146,10 @@ export default function DashboardPage() {
       const blendName = sendData.result?.blendPath?.split('/').pop() || "";
 
       setMediaPaths({
-        png: pngName ? `http://localhost:3000/media/${pngName}` : "",
-        mp4: mp4Name ? `http://localhost:3000/media/${mp4Name}` : "",
-        glb: glbName ? `http://localhost:3000/media/${glbName}` : "",
-        blend: blendName ? `http://localhost:3000/media/${blendName}` : ""
+        png: pngName ? `${API_URL}/media/${pngName}` : "",
+        mp4: mp4Name ? `${API_URL}/media/${mp4Name}` : "",
+        glb: glbName ? `${API_URL}/media/${glbName}` : "",
+        blend: blendName ? `${API_URL}/media/${blendName}` : ""
       });
       
       if (glbName) setActivePreview("glb");
@@ -514,7 +516,7 @@ export default function DashboardPage() {
                         setLoadingLinks(prev => ({ ...prev, [comp.name]: true }));
                         try {
                           const token = Cookies.get("auth_token");
-                          const res = await fetch("http://localhost:3000/api/v1/items-search", {
+                          const res = await fetch(`${API_URL}/api/v1/items-search`, {
                             method: "POST",
                             headers: { 
                               "Content-Type": "application/json",

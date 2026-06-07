@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Cookies from "js-cookie";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
@@ -30,7 +32,7 @@ export default function SignInPage() {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:3000/api/v1/signin", {
+      const res = await fetch(`${API_URL}/api/v1/signin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password: pass }),
@@ -107,9 +109,9 @@ export default function SignInPage() {
                 onMouseLeave={e => { e.currentTarget.style.background = "var(--surf)"; e.currentTarget.style.color = "var(--text2)"; }}
                 onClick={() => {
                   if (s.label === "GitHub") {
-                    window.location.href = "http://localhost:3000/api/v1/auth/github";
+                    window.location.href = `${API_URL}/api/v1/auth/github`;
                   } else if (s.label === "Google") {
-                    window.location.href = "http://localhost:3000/api/v1/auth/google";
+                    window.location.href = `${API_URL}/api/v1/auth/google`;
                   }
                 }}
               >
